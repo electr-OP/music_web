@@ -1,0 +1,43 @@
+
+{% extends 'music/Base.html' %}
+    {% block title %} Album Details {% endblock %}
+    {% block body %}
+        <div class="container-fluid">
+        <div class="row">
+                <div class="col-md-3"><div class="cols">
+                        <div class="thumbnail">
+                                {% if album.album_logo %}
+                                    <img src="{{ album.album_logo.url }}" class="img-responsive" style="height: 50%; width: 100%;">
+                                 {% else %}
+                                    <h3>No image to display</h3>
+                                 {% endif %}
+                            <div class="caption text-left">
+                                <h3>{{album.album_title}}</h3>
+                                <h4>{{album.artist}}</h4>
+                            </div>
+                        </div>
+                </div> </div>
+
+            <div class="col-md-9"><div class="cols">
+                <div class="btn-group">
+                     <a href="#" class="btn btn-primary"> View All </a>
+                     <a href="{% url 'music:update_album' album.id %}" class="btn btn-primary" > Edit Album </a>
+                     <a href="#" class="btn btn-link" style="display: inline; color: orange; text-decoration: none;"> Add New Song </a>
+                      <br><br>
+                </div>
+                <div class="thumbnail" style="height: 100px;">
+                    <h3> All Songs </h3>
+                    {% for track in album.song_set.all %}
+                        {% block trk %}
+                        {% include 'music/song.html' %}
+                        {% endblock %}
+                    {% endfor %}
+
+                        <h5>{{song.song_title}}</h5>
+
+
+                </div>
+
+            </div>
+            </div></div></div>
+            {% endblock %}

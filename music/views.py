@@ -1,0 +1,98 @@
+from django.shortcuts import render,redirect
+from django.http import HttpResponse
+from django.contrib.auth import authenticate, login
+from .forms import UserForm
+from .models import Album, Song
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from django.http import Http404
+from django.template import loader
+from django.views import generic
+from django.views.generic import View
+
+"""
+def index(request):
+    all_albums = Album.objects.all()
+    context = {'all_albums': all_albums, }
+    return render(request, 'music/index.html', context)
+
+
+def detail(request, album_id):
+    try:
+        album = Album.objects.get(id=album_id)
+    except Album.DoesNotExist:
+        raise Http404('Album does not exist')
+    context = {'album': album, }
+    return render(request, 'music/detail.html', context)
+"""
+class indexview(generic.ListView):
+    template_name = 'music/index.html'
+
+    context_object_name = 'all_albums'
+
+    def get_queryset(self):
+        return Album.objects.all()
+
+
+class detailview(generic.DetailView):
+    model = Album
+    template_name = 'music/detail.html'
+
+
+
+class songdetailview(generic.ListView):
+    template_name = 'music/detail.html'
+
+    context_object_name = 'all_songs'
+
+    def get_queryset(self):
+        return Song.objects.all()
+
+
+class AlbumCreate(CreateView):
+    model = Album
+    #fields = ['artist', 'album_title', 'genre', 'album_logo']
+    fields = '__all__'
+
+class AlbumUpdate(UpdateView):
+    model = Album
+    fields = ['artist', 'album_title', 'genre', 'album_logo']
+
+
+class AlbumDelete(DeleteView):
+    model = Album
+    success_url = reverse_lazy('music:index')
+
+
+
+class UserFormView(View):
+    form_class = UserForm
+    template_name = 'music/registration_data.html'
+
+# blank form
+    def get(self, request):
+        form = self.form_class(None)
+        return render(request, self.template_name, {'form':form})
+
+    def post(self, request):
+        form = self.form_class(request.POST)
+
+        if form.is_valid():
+
+            user = form.save(commit=False)
+
+            username = form.cleaned_data['username']
+            Password = form.cleaned_data['Password']
+            user.set_password(Password)
+            user.save()
+
+
+            user = authenticate(username=username, password=Password)
+
+            if user is not None:
+
+                if user.is_active:
+                    login(request, user)
+                    return redirect('music:index')
+
+        return render(request, self.template_name, {'form': form})
