@@ -1,10 +1,26 @@
 from django.contrib.auth.models import User
+from .models import Song
 from django import forms
 
 
 class UserForm(forms.ModelForm):
-    Password = forms.CharField(widget=forms.PasswordInput)
+    password = forms.CharField(widget=forms.PasswordInput)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'Password']
+        fields = ['username', 'email', 'password']
+
+
+class LoginForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput)
+
+    class Meta:
+        model = User
+        fields = ['username', 'password']
+
+
+class SongForm(forms.ModelForm):
+
+    class Meta:
+        model = Song
+        fields = ['song_title', 'song_file']

@@ -22,19 +22,32 @@
                 <div class="btn-group">
                      <a href="#" class="btn btn-primary"> View All </a>
                      <a href="{% url 'music:update_album' album.id %}" class="btn btn-primary" > Edit Album </a>
-                     <a href="#" class="btn btn-link" style="display: inline; color: orange; text-decoration: none;"> Add New Song </a>
+                     <a href="{% url 'music:add-song' album.id %}" class="btn btn-link" style="display: inline; color: orange; text-decoration: none;"> Add New Song </a>
                       <br><br>
                 </div>
-                <div class="thumbnail" style="height: 100px;">
+                <div class="thumbnail" style="height: 700px;">
                     <h3> All Songs </h3>
-                    {% for track in album.song_set.all %}
+
+                    {% if error_message %}
+                        <p><strong>{{ error_message }}</strong></p>
+                    {% endif %}
+
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Audio File</th>
+                            <th>Duration</th>
+                            <th>Favourite</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
                         {% block trk %}
                         {% include 'music/song.html' %}
                         {% endblock %}
-                    {% endfor %}
 
-                        <h5>{{song.song_title}}</h5>
 
+                    </table>
 
                 </div>
 
