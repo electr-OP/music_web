@@ -5,13 +5,27 @@
 
 
 {% block body %}
-    {% for album in all_albums %}
+
+<div class="dropdown" style="margin-left:1.5%;">
+  <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Sort by
+  <span class="caret"></span></button>
+  <ul class="dropdown-menu">
+    <li><a href="?order_by=album_title">Title</a></li>
+    <li><a href="?order_by=artist">Artist</a></li>
+    <li><a href="?order_by=-date">Date</a></li>
+  </ul>
+</div>
+
     <div class="container-fluid">
         <div class="row">
-                <div class="col-md-4"><div class="cols">
+             <div class="col-sm-12">
+                <h3>{{ user.username }}'s Albums</h3>
+             </div>
+            {% for album in all_albums %}
+                <div class="col-md-3"><div class="cols">
                         <div class="thumbnail" style=";">
                             <a href="{% url 'music:detail' album.id %}">
-                                <img src="{{ album.album_logo.url }}" class="img-responsive" style="height: 70%; width: 100%;">
+                                <img src="{{ album.album_logo.url }}" class="img-responsive" style="height: 50%; width: 100%;">
                             </a>
 
 
@@ -30,7 +44,7 @@
 
                             </div>
                         </div></div></div>
-    {% endfor %}
+            {% endfor %}
         </div>
     </div>
 

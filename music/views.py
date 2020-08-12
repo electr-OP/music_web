@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
-from .forms import UserForm, LoginForm, SongForm
+from .forms import UserForm, LoginForm
 from .models import Album, Song
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy, reverse
@@ -35,12 +35,17 @@ class indexview(LoginRequiredMixin, generic.ListView):
     template_name = 'music/index.html'
     context_object_name = 'all_albums'
 
+
+
     def get_queryset(self):
-       # print(self.request.user)
-        return Album.objects.all()
+        print(self.request.user)
+        order_by = self.request.GET.get('order_by', 'artist')
+        return Album.objects.filter(user=self.request.user).order_by(order_by)
 
 
-class detailview(generic.DetailView):
+class detailview(LoginRequiredMixin, generic.DetailView):
+    login_url = 'login/'
+    redirect_field_name = 'redirect_to'
     model = Album
     template_name = 'music/detail.html'
 
@@ -54,18 +59,35 @@ class songdetailview(generic.ListView):
         return Song.objects.all()
 
 
-class AlbumCreate(CreateView):
+class AlbumCreate(LoginRequiredMixin, CreateView):
+    login_url = 'login/'
+    redirect_field_name = 'redirect_to'
     model = Album
-    # fields = ['artist', 'album_title', 'genre', 'album_logo']
-    fields = '__all__'
+    fields = ['artist', 'album_title', 'genre', 'album_logo']
+    # fields = '__all__'
+
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.user = self.request.user
+        object.save()
+        return super(AlbumCreate, self).form_valid(form)
 
 
 class AlbumUpdate(UpdateView):
+    login_url = 'login/'
+    redirect_field_name = 'redirect_to'
     model = Album
     fields = ['artist', 'album_title', 'genre', 'album_logo']
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.user = self.request.user
+        object.save()
+        return super(AlbumUpdate, self).form_valid(form)
 
 
-class AlbumDelete(DeleteView):
+class AlbumDelete(LoginRequiredMixin, DeleteView):
+    login_url = 'login/'
+    redirect_field_name = 'redirect_to'
     model = Album
     success_url = reverse_lazy('music:index')
 
@@ -91,9 +113,10 @@ class UserFormView(View):
             if user is not None:
                 if user.is_active:
                     login(request, user)
-                    all_albums = Album.objects.filter(user=request.user)
+                    order_by = self.request.GET.get('order_by', 'artist')
+                    all_albums = Album.objects.filter(user=request.user).order_by(order_by)
                     # return render(request, 'music:index', {'albums':albums})
-                    return redirect('music:index', {'all_albums': all_albums})
+                    return render(request, 'music/index.html', {'all_albums': all_albums})
 
         return render(request, self.template_name, {'form': form})
 
@@ -109,7 +132,8 @@ class LoginView(View):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                all_albums = Album.objects.all()
+                order_by = self.request.GET.get('order_by', 'artist')
+                all_albums = Album.objects.filter(user=request.user).order_by(order_by)
                 return render(request, 'music/index.html', {'all_albums': all_albums})
             else:
                 return render(request, 'music/login.html', {'error_message': 'Your account has been disabled'})
@@ -122,7 +146,7 @@ class LogoutView(View):
     def get(self,request):
         logout(request)
         form = self.form_class(request.POST or None)
-        context ={'form':form}
+        context = {'form': form}
         return render(request, self.template_name, context)
 
 class SongCreate(CreateView):

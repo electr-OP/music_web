@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models import FileField
 from django.urls import reverse
 from django.contrib.auth.models import Permission, User
-
+from  django.utils import timezone
 # Create your models here.
 class Album(models.Model):
     user = models.ForeignKey(User, on_delete=models.DO_NOTHING, default=1)
@@ -10,6 +10,7 @@ class Album(models.Model):
     album_title = models.CharField(max_length=500)
     genre = models.CharField(max_length=100)
     album_logo = models.FileField()
+    date = models.DateTimeField(default=timezone.now)
 
     def get_absolute_url(self):
         return reverse('music:detail', kwargs={'pk': self.pk})

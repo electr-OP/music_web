@@ -18,9 +18,3 @@ class LoginForm(forms.ModelForm):
         model = User
         fields = ['username', 'password']
 
-
-class SongForm(forms.ModelForm):
-
-    class Meta:
-        model = Song
-        fields = ['song_title', 'song_file']
